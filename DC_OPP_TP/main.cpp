@@ -1,57 +1,57 @@
 #include <fstream>
-#include <iostream>
+#include "boolList.hpp"
 using namespace std;
 
-class booltype {
-	// ¸µÅ©µå ¸®½ºÆ®
-public: 
-	bool md; // minterm, don't care ±¸ºĞ
-	char* boolvalue; // °ª ex) 0000, 0010
-	int one; // 1 °¹¼ö
-	int sort_one; // °¹¼ö¿¡ µû¸¥ ¼ø¼­
-	bool start; // 1ÀÇ °¹¼ö·Î ±¸ºĞµÈ ½ÃÀÛÀÎÁö È®ÀÎ
-	bool end; // 1ÀÇ °¹¼ö·Î ±¸ºĞµÈ ³¡ÀÎÁö È®ÀÎ
-	booltype* next; // ´ÙÀ½¿ä¼Ò
-	booltype();
-	
-	~booltype();
-};
+int bits; // ë¹„íŠ¸
 
 void Q_M_process() {
-	// ÄâÀÎ-¸ÅÅ¬·¯½ºÅ° ¾Ë°í¸®Áò Ã³¸®
+	// ì½°ì¸-ë§¤í´ëŸ¬ìŠ¤í‚¤ ì•Œê³ ë¦¬ì¦˜ ì²˜ë¦¬
 
-	// 1ÀÇ °³¼ö Á¤·Ä ¹× ºĞ¸®, ¼ø¼­´ë·Î Á¤·Ä (Ä¿½ºÅÒ ¸µÅ©µå ¸®½ºÆ®)
-	// 1ÀÇ °³¼ö·Î ºĞ¸®µÈ ºÎºĞ³¢¸® ºñ±³ ¹× Á¤·Ä. 
-	// Á¤·ÄµÈ ¿ä¼ÒµéÀÌ ºñ±³ÇÏ°í ÀÖ´Â ¿ä¼Òµé¿¡ ¿¬°áÀÌ µÇ´ÂÁö È®ÀÎÇÏ°í
-	// µÇÁö ¾Ê´Â ¿ä¼ÒµéÀº µû·Î ¸µÅ©µå ¸®½ºÆ®¿¡ ÀúÀå
-	// (¹İº¹ - ¿¬°áµÇÁö ¾Ê´Â ¿ä¼Ò¸¸ Á¸ÀçÇÒ¶§ ±îÁö)
-	   // => Prime implicant ÀúÀå
+	// 1ì˜ ê°œìˆ˜ ì •ë ¬ ë° ë¶„ë¦¬, ìˆœì„œëŒ€ë¡œ ì •ë ¬ (ì»¤ìŠ¤í…€ ë§í¬ë“œ ë¦¬ìŠ¤íŠ¸)
+	// 1ì˜ ê°œìˆ˜ë¡œ ë¶„ë¦¬ëœ ë¶€ë¶„ë¼ë¦¬ ë¹„êµ ë° ì •ë ¬. 
+	// ì •ë ¬ëœ ìš”ì†Œë“¤ì´ ë¹„êµí•˜ê³  ìˆëŠ” ìš”ì†Œë“¤ì— ì—°ê²°ì´ ë˜ëŠ”ì§€ í™•ì¸í•˜ê³ 
+	// ë˜ì§€ ì•ŠëŠ” ìš”ì†Œë“¤ì€ ë”°ë¡œ ë§í¬ë“œ ë¦¬ìŠ¤íŠ¸ì— ì €ì¥
+	// (ë°˜ë³µ - ì—°ê²°ë˜ì§€ ì•ŠëŠ” ìš”ì†Œë§Œ ì¡´ì¬í• ë•Œ ê¹Œì§€)
+	   // => Prime implicant ì €ì¥
+	
 
-	// minterm ¿ä¼Ò ÇÏ³ª·Î PIs ¿ä¼Ò¸¦ ¹İº¹ÇÏ¿© ¿¬°áµÇ´Â ºÎºĞÀ» È®ÀÎ 
-	// (¹İº¹ - ¸ğµç¿ä¼Ò ºñ±³±îÁö)
-	   // => Essential Prime implicant ÀúÀå
+	// minterm ìš”ì†Œ í•˜ë‚˜ë¡œ PIs ìš”ì†Œë¥¼ ë°˜ë³µí•˜ì—¬ ì—°ê²°ë˜ëŠ” ë¶€ë¶„ì„ í™•ì¸ 
+	// (ë°˜ë³µ - ëª¨ë“ ìš”ì†Œ ë¹„êµê¹Œì§€)
+	   // => Essential Prime implicant ì €ì¥
 
-	// ¹İÈ¯ - Essential Prime implicant (char*)
+	// ë°˜í™˜ - Essential Prime implicant (char*)
 }
 
 void Optimize() {
-	// ÃÖÀûÈ­
-
+	// ìµœì í™”
+	
 	// TWO-LEVEL LOGIC CIRCUIT
 }
 
 void BoolEqu() {
-	// BOOL EQ·Î ³ªÅ¸³»°í (³»ºÎÀû) -> Æ®·£Áö½ºÅÍ °¹¼ö ÆÄ¾Ç
+	// BOOL EQë¡œ ë‚˜íƒ€ë‚´ê³  (ë‚´ë¶€ì ) -> íŠ¸ëœì§€ìŠ¤í„° ê°¯ìˆ˜ íŒŒì•…
 }
 
 int main() {
+	char fileline[256];
 	ifstream bool_input;
 	bool_input.open("input_minterm.txt");
-	/* ÆÄÀÏ ÀÔ·Â Ã³¸® */
-	// ºñÆ® ÀÔ·Â
-	// don't care / minterm ±¸ºĞ
 
-	// ÄâÀÎ-¸ÅÅ¬·¯½ºÅ° ¾Ë°í¸®Áò Ã³¸® ÇÔ¼ö·Î ³Ñ±â±â
+	/* íŒŒì¼ ì…ë ¥ ì²˜ë¦¬ */
+	if (!bool_input.is_open()){
+		cout << "File Open Error!" << endl;
+		return 0;
+	}
+
+	// ë¹„íŠ¸ ì…ë ¥
+	bool_input.getline(fileline, 256);
+	bits = atoi(fileline);
+
 	
-	return 0;
+	while(!bool_input.eof()){
+		bool_input.getline(fileline, bits+3);
+		//
+	}
+	
+	// ì½°ì¸-ë§¤í´ëŸ¬ìŠ¤í‚¤ ì•Œê³ ë¦¬ì¦˜ ì²˜ë¦¬ í•¨ìˆ˜ë¡œ ë„˜ê¸°ê¸°
 }
