@@ -16,7 +16,7 @@ void Q_M_process(boolList* firstList) { // 콰인-매클러스키 알고리즘 �
 	   // => Prime implicant 저장
 	
 	int newLists = 0;
-	ImplicantList* nextList[bits];
+	ImplicantList** nextList = new ImplicantList* [bits];
 	nextList[0] = firstList->newLists();
 	
 	while(nextList[newLists] != NULL){
@@ -44,7 +44,7 @@ void Q_M_process(boolList* firstList) { // 콰인-매클러스키 알고리즘 �
 	// (반복 - 모든요소 비교까지)
 	   // => Essential Prime implicant 저장
 
-	// 반환 - Essential Prime implicant (char*)
+	// 반환 - 이차원 배열로 출력
 }
 
 void Optimize() {
