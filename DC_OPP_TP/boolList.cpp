@@ -1,3 +1,4 @@
+
 /* 	=======================================
 	[리스트 메소드 정의용 소스파일}
 	  리스트 내 복잡한 메소드를 여기서 정의
@@ -6,13 +7,51 @@
 #include "boolList.hpp"
 
 /* Lists 클래스 내 함수 */
-Lists* Lists::newLists(){
+bool Lists::findBoolty(char* txt){ // 해당 bool Eq가 존재하는지 찾기
+    booltype *currBt = head;
+    while(currBt != NULL){
+        int samebits = 0;
+        for (int i = 0; i < bits; ++i){
+            if (currBt->boolvalue[i] == txt[i]) {++samebits;}
+        }
+        if (samebits == bits){return 1;}
+    }
+    return 0;
+}
+ImplicantList* Lists::newLists(){ // 후에 연결되는 리스트 추가
     ImplicantList* newImpli = new ImplicantList(index+1, this);
-    
+    booltype *currIBt = gethead();
+    while(currIBt != NULL){
+        booltype *cmpIBt = getOneStart(currIBt->one + 1);
+        int idx = cmpIBt->one;
+        if (cmpIBt == NULL){break;}
+        while(idx == cmpIBt->one){
+            int check = -1;
+            for(int i = 0; i < bits; ++i){
+                if (currIBt->boolvalue[i] != cmpIBt->boolvalue[i]){
+                    if (check != -1){check = -1; break;}
+                    check = i;
+                }
+            }
+            if (check != -1){ // 추가
+                newImpli->insertImpliEq(currIBt->boolvalue, check);
+                currIBt->connect = true;
+                cmpIBt->connect = true;
+            }
+            cmpIBt = cmpIBt->next;
+        }
+    }
     if (newImpli->gethead() == NULL){
         return NULL;
     }
     return newImpli;
+}
+booltype* Lists::getOneStart(int idx){ // one을 idx로 하는 최초 booltype 구하기
+    booltype *currImp = gethead();
+    while(currImp != NULL){
+        if (currImp->one == idx){return currImp;}
+    }
+    return NULL;
 }
 
 /* boolList 클래스 내 함수 */
@@ -54,8 +93,18 @@ void boolList::insertBoolEq(char* intxt){ // 초기 Bool Eq를 추가하는 함�
 }
 
 /* ImlicantList 클래스 내 함수 */
-void ImplicantList::insertImpliEq(char* intxt){ // implicant를 추가하는 함수
-	booltype* newEq = new booltype(intxt);
+void ImplicantList::insertImpliEq(char* intxt, int baridx){ // implicant를 추가하는 함수
+
+    // 중복 확인
+    char* newtxt = new char[bits+1];
+    for (int i = 0; i < bits; ++i){ 
+        if (i == baridx) {newtxt[i] = '-'; continue;}
+        newtxt[i] = intxt[i];
+    } newtxt[bits] = '\0'
+    if (findBoolty(newtxt) == 1) {delete[] newtxt; return;}
+
+	booltype* newEq = new booltype(newtxt);
+    delete[] newtxt;
 	// 1의 갯수에 맞게 올바른 위치에 삽입
 		// 일단 head가 NULL이면 그냥 바로 삽입
 		if (head == NULL){
@@ -86,24 +135,4 @@ void ImplicantList::insertImpliEq(char* intxt){ // implicant를 추가하는 함
 		if (sameOneEq != NULL){newEq->next = currEq->next; currEq->next = newEq;}
 		lastEq->next = newEq;
 		return;
-}
-void ImplicantList::checkPrevConnect(){// 이전 리스트에서 Prime Implicant를 찾기위해 연결되지 않는것을 찾는것
-	booltype *currIBt = head /* 이 리스트의 Implicant 식 */,
-		*currCBt = prevList->gethead(); /* 이전에 연결된 리스트의  */
-	while (currIBt != NULL){
-		while (currCBt != NULL){ // 끝이 아닌지 확인
-			if (currCBt->one == currIBt->one ||
-			 currCBt->one == currIBt->one +1){ // 이웃하는 경우인지 확인
-				for (int i = 0; i < bits; ++i){
-					if (currIBt->boolvalue[i] != currCBt->boolvalue[i] || 
-					 currCBt->boolvalue[i] != '_'){ // 일치하지 않는 경우를 찾을때
-						currCBt->connect = false;
-					}
-				}
-				currCBt = currCBt->next;
-			} 
-			else{break;}
-		}
-	    currIBt = currIBt->next;
-	}
 }

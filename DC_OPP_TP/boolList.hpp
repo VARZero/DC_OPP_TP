@@ -17,7 +17,7 @@ class booltype {
 		booltype* next; // 다음요소
 		booltype(char* txt) {
 			// 기본 값 초기회
-			one = 0; connect = true;
+			one = 0; connect = false;
 			// bool 값 저장을 위해 동적할당
 			boolvalue = new char[bits+1];
 			// 값을 복사하고 마지막에 NULL 추가
@@ -60,8 +60,10 @@ class Lists{
 				temp->~booltype();
 			}
 		}
+		bool findBoolty(char* txt); // 해당 bool Eq가 존재하는지 찾기
 		booltype* gethead(){return head;}
-		Lists* newLists(); // 후에 연결되는 리스트 만들기
+		ImplicantList* newLists(); // 후에 연결되는 리스트 만들기
+		booltype* getOneStart(int idx); // one을 idx로 하는 최초 booltype 구하기
 };
 
 class boolList : public Lists{
@@ -88,6 +90,5 @@ class ImplicantList : public Lists{
 	public:
 		ImplicantList(int index, Lists* prList):Lists(index) {prevList = prList;}
 		~ImplicantList();
-		void insertImpliEq(char* intxt); // implicant를 추가하는 함수
-		void checkPrevConnect(); // 이전 리스트에서 Prime Implicant를 찾기위해 연결되지 않는것을 찾는것
+		void insertImpliEq(char* intxt, int baridx); // implicant를 추가하는 함수
 };
