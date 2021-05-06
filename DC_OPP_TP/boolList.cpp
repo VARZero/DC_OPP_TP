@@ -14,6 +14,7 @@ bool Lists::findBoolty(char* txt){ // 해당 bool Eq가 존재하는지 찾기
             if (currBt->boolvalue[i] == txt[i]) {++samebits;}
         }
         if (samebits == bits){return 1;}
+		currBt = currBt->next;
     }
     return 0;
 }
@@ -24,21 +25,26 @@ ImplicantList* Lists::newLists(){ // 후에 연결되는 리스트 추가
         booltype *cmpIBt = getOneStart(currIBt->one + 1);
         int idx = cmpIBt->one;
         if (cmpIBt == NULL){break;}
-        while(idx == cmpIBt->one){
-            int check = -1;
-            for(int i = 0; i < bits; ++i){
-                if (currIBt->boolvalue[i] != cmpIBt->boolvalue[i]){
-                    if (check != -1){check = -1; break;}
-                    check = i;
-                }
-            }
-            if (check != -1){ // 추가
-                newImpli->insertImpliEq(currIBt->boolvalue, check);
-                currIBt->connect = true;
-                cmpIBt->connect = true;
-            }
-            cmpIBt = cmpIBt->next;
-        }
+		while (cmpIBt != NULL) {
+			if (idx == cmpIBt->one) {
+				int check = -1;
+				for (int i = 0; i < bits; ++i) {
+					if (currIBt->boolvalue[i] != cmpIBt->boolvalue[i]) {
+						if (check != -1) { check = -1; break; }
+						check = i;
+					}
+				}
+				if (check != -1) { // 추가
+					newImpli->insertImpliEq(currIBt->boolvalue, check);
+					currIBt->connect = true;
+					cmpIBt->connect = true;
+				}
+				cmpIBt = cmpIBt->next;
+			}
+			else { break; }
+		}
+		currIBt = currIBt->next;
+		if (currIBt->one == bits - index) { break; }
     }
     if (newImpli->gethead() == NULL){
         return NULL;
@@ -66,12 +72,16 @@ void Lists::getUnconnect(PIList* PI){ // unconnect되는 모든 요소와 갯수
 /* boolList 클래스 내 함수 */
 void boolList::insertBoolEq(char* intxt){ // 초기 Bool Eq를 추가하는 함수
 	// don't care / minterm 구분과 함께 booltype 객체 생성
-	booltype* newEq;
+	booltype* newEq = NULL;
 	if (intxt[0] == 'd'){
 		newEq = new dontcare(intxt + 2);
 	}
 	else if (intxt[0] == 'm'){
-		newEq = new minterm(intxt + 2);
+		minterm* newMin = new minterm(intxt + 2);
+		newEq = newMin;
+
+		if (minhead == NULL) { minhead = newMin; }
+		else { newMin->mtnext = minhead; minhead = newMin; }
 	}
 	// 1의 갯수에 맞게 올바른 위치에 삽입
 		// 일단 head가 NULL이면 그냥 바로 삽입
@@ -140,7 +150,7 @@ void ImplicantList::insertImpliEq(char* intxt, int baridx){ // implicant를 추�
 			lastEq = currEq;
 			currEq = currEq->next;
 		}
-		if (sameOneEq != NULL){newEq->next = currEq->next; currEq->next = newEq;}
+		if (sameOneEq != NULL){newEq->next = sameOneEq->next; sameOneEq->next = newEq;}
 		lastEq->next = newEq;
 		return;
 }
@@ -158,4 +168,31 @@ void PIList::insertPI(char* txt){ // Prime Implicant 추가
 }
 booltype* PIList::gethead(){ // head 출력
     return head;
+}
+void PIList::getEPI(PIList* EPIs, boolList* minterms, int *count) { // Essential Prime Implicant 구하기
+	booltype* currMin = minterms->getMinhead();
+	
+	while (currMin != NULL) {
+		booltype* currPI = head;
+		booltype* cover = NULL;
+		while (currPI != NULL) {
+			int boolsame = 0;
+			for (int i = 0; i < bits; ++i) {
+				if (currMin->boolvalue[i] == currPI->boolvalue[i] || currPI->boolvalue[i] == '-') {
+					++boolsame;
+				}
+				else { break; }
+			}
+			if (boolsame == bits) {
+				if (cover != NULL) { cover = NULL; break; }
+				cover = currPI;
+			}
+			currPI = currPI->next;
+		}
+		if (cover != NULL) {
+			EPIs->insertPI(cover->boolvalue);
+			++count;
+		}
+		currMin = currMin->next;
+	}
 }

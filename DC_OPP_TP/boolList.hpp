@@ -17,7 +17,7 @@ class booltype {
 		booltype* next; // 다음요소
 		booltype(char* txt) {
 			// 기본 값 초기회
-			one = 0; connect = false;
+			one = 0; connect = false; next = NULL;
 			// bool 값 저장을 위해 동적할당
 			boolvalue = new char[bits+1];
 			// 값을 복사하고 마지막에 NULL 추가
@@ -28,7 +28,9 @@ class booltype {
 		}
 		~booltype(){
 			// 동적할당 해제
-			delete[] boolvalue;
+			if (this != NULL){
+				delete[] boolvalue;
+			}
 		}
 };
 
@@ -41,7 +43,8 @@ class dontcare : public booltype{
 class minterm : public booltype{
 	// minterm을 저장하기 위한 클래스
 	public:
-		minterm(char* txt):booltype(txt) {}
+		minterm* mtnext; // minterm 리스트의 다음 
+		minterm(char* txt) :booltype(txt) { mtnext = NULL; }
 };
 
 class boolList; class ImplicantList; class PIList;
@@ -50,9 +53,10 @@ class Lists{
 	// 링크드 리스트 관련 클래스 (상속용)
 	protected:
 		booltype* head;
+		minterm* minhead;
 		int index;
 	public:
-		Lists(int newindex){index = newindex; head = NULL;}
+		Lists(int newindex) { index = newindex; head = NULL; minhead = NULL; }
 		~Lists(){
 			// booltype의 동적할당 해제
 			booltype* currEq = head, *temp;
@@ -64,6 +68,7 @@ class Lists{
 		}
 		bool findBoolty(char* txt); // 해당 bool Eq가 존재하는지 찾기
 		booltype* gethead(){return head;}
+		minterm* getMinhead() { return minhead; }
 		ImplicantList* newLists(); // 후에 연결되는 리스트 만들기
 		booltype* getOneStart(int idx); // one을 idx로 하는 최초 booltype 구하기
 		void getUnconnect(PIList* PI); // unconnect되는 모든 요소를 PI 리스트에 추가
@@ -73,15 +78,7 @@ class boolList : public Lists{
 	// txt에서 받아들인 Bool Eq를 링크드 리스트로 처리하는 부분
 	public:
 		boolList():Lists(0){}
-		~boolList(){
-			// booltype의 동적할당 해제
-			booltype* currEq = head, *temp;
-			while(currEq != NULL){
-				temp = currEq;
-				currEq = currEq->next;
-				temp->~booltype();
-			}
-		}
+		~boolList(){}
 
 		void insertBoolEq(char* intxt); // 초기 Bool Eq를 추가하는 함수
 };
@@ -92,7 +89,7 @@ class ImplicantList : public Lists{
 		Lists* prevList; // connect 확인용 이전 리스트
 	public:
 		ImplicantList(int index, Lists* prList):Lists(index) {prevList = prList;}
-		~ImplicantList();
+		~ImplicantList(){}
 		void insertImpliEq(char* intxt, int baridx); // implicant를 추가하는 함수
 };
 
@@ -103,4 +100,5 @@ class PIList : public Lists{
 		~PIList() {}
 		void insertPI(char* intxt); // Prime Implicant 추가
 		booltype* gethead(); // head 출력
+		void getEPI(PIList* EPIs, boolList* minterms, int *count); // Essential Prime Implicant 구하기
 };
