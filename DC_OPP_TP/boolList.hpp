@@ -44,6 +44,8 @@ class minterm : public booltype{
 		minterm(char* txt):booltype(txt) {}
 };
 
+class boolList; class ImplicantList; class PIList;
+
 class Lists{
 	// 링크드 리스트 관련 클래스 (상속용)
 	protected:
@@ -64,6 +66,7 @@ class Lists{
 		booltype* gethead(){return head;}
 		ImplicantList* newLists(); // 후에 연결되는 리스트 만들기
 		booltype* getOneStart(int idx); // one을 idx로 하는 최초 booltype 구하기
+		void getUnconnect(PIList* PI); // unconnect되는 모든 요소를 PI 리스트에 추가
 };
 
 class boolList : public Lists{
@@ -91,4 +94,13 @@ class ImplicantList : public Lists{
 		ImplicantList(int index, Lists* prList):Lists(index) {prevList = prList;}
 		~ImplicantList();
 		void insertImpliEq(char* intxt, int baridx); // implicant를 추가하는 함수
+};
+
+class PIList : public Lists{
+	// Prime Implicant List
+	public:
+		PIList():Lists(0) {}
+		~PIList() {}
+		void insertPI(char* intxt); // Prime Implicant 추가
+		booltype* gethead(); // head 출력
 };

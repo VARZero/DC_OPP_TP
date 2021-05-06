@@ -1,4 +1,3 @@
-
 /* 	=======================================
 	[리스트 메소드 정의용 소스파일}
 	  리스트 내 복잡한 메소드를 여기서 정의
@@ -50,8 +49,18 @@ booltype* Lists::getOneStart(int idx){ // one을 idx로 하는 최초 booltype �
     booltype *currImp = gethead();
     while(currImp != NULL){
         if (currImp->one == idx){return currImp;}
+        currImp = currImp->next;
     }
     return NULL;
+}
+void Lists::getUnconnect(PIList* PI){ // unconnect되는 모든 요소와 갯수를 반환하는 함수
+    booltype* currBt = head;
+    while(currBt != NULL){
+        if (currBt->connect == false){
+            PI->insertPI(currBt->boolvalue);
+        }
+        currBt = currBt->next;
+    }
 }
 
 /* boolList 클래스 내 함수 */
@@ -94,13 +103,12 @@ void boolList::insertBoolEq(char* intxt){ // 초기 Bool Eq를 추가하는 함�
 
 /* ImlicantList 클래스 내 함수 */
 void ImplicantList::insertImpliEq(char* intxt, int baridx){ // implicant를 추가하는 함수
-
     // 중복 확인
     char* newtxt = new char[bits+1];
     for (int i = 0; i < bits; ++i){ 
         if (i == baridx) {newtxt[i] = '-'; continue;}
         newtxt[i] = intxt[i];
-    } newtxt[bits] = '\0'
+    } newtxt[bits] = '\0';
     if (findBoolty(newtxt) == 1) {delete[] newtxt; return;}
 
 	booltype* newEq = new booltype(newtxt);
@@ -135,4 +143,19 @@ void ImplicantList::insertImpliEq(char* intxt, int baridx){ // implicant를 추�
 		if (sameOneEq != NULL){newEq->next = currEq->next; currEq->next = newEq;}
 		lastEq->next = newEq;
 		return;
+}
+
+/* PIList 클래스 내 메소드 */
+void PIList::insertPI(char* txt){ // Prime Implicant 추가
+    booltype* newPi = new booltype(txt);
+    if (head == NULL){
+        head = newPi;
+    }
+    else {
+        newPi->next = head;
+        head = newPi;
+    }
+}
+booltype* PIList::gethead(){ // head 출력
+    return head;
 }
