@@ -28,9 +28,7 @@ class booltype {
 		}
 		~booltype(){
 			// 동적할당 해제
-			if (this != NULL){
-				delete[] boolvalue;
-			}
+			delete[] boolvalue;
 		}
 };
 

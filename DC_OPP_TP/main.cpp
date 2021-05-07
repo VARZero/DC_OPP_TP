@@ -1,5 +1,6 @@
 #include <fstream>
 #include "boolList.hpp"
+#include <string.h>
 
 using namespace std;
 
@@ -42,21 +43,12 @@ char** Q_M_process(boolList* firstList, int *EPI_length) { // 콰인-매클러�
 
 	booltype* EPIp = EPI.gethead();
 
-	char **EPIda;
-	EPIda = new char*[count];
+	char **EPIda = new char*[count];
 	for (int i = 0; i < count; ++i) {
-		EPIda[i] = new char[bits];
-	}
-
-	int j = 0;
-	while (EPIp != NULL) {
 		cout << EPIp->boolvalue << endl;
-		for (int k = 0; k < bits; ++k) {
-			EPIda[j][k] = ' ';
-			EPIp->boolvalue[k];
-		}
+		EPIda[i] = new char[bits];
 		bool_output.write(EPIp->boolvalue, bits);
-		EPIp = EPIp->next; ++j;
+		EPIp = EPIp->next;
 	}
 
 	// 반환 - 이차원 배열로 출력
