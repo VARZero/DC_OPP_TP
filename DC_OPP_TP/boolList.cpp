@@ -191,7 +191,7 @@ void PIList::getEPI(PIList* EPIs, boolList* minterms, int *count) { // Essential
 		}
 		if (cover != NULL) {
 			EPIs->insertPI(cover->boolvalue);
-			++count;
+			++(*count);
 		}
 		currMin = currMin->next;
 	}
