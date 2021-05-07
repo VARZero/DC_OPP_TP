@@ -170,7 +170,7 @@ booltype* PIList::gethead(){ // head 출력
     return head;
 }
 void PIList::getEPI(PIList* EPIs, boolList* minterms, int *count) { // Essential Prime Implicant 구하기
-	booltype* currMin = minterms->getMinhead();
+	minterm* currMin = minterms->getMinhead();
 	
 	while (currMin != NULL) {
 		booltype* currPI = head;
@@ -193,6 +193,6 @@ void PIList::getEPI(PIList* EPIs, boolList* minterms, int *count) { // Essential
 			EPIs->insertPI(cover->boolvalue);
 			++(*count);
 		}
-		currMin = currMin->next;
+		currMin = currMin->mtnext;
 	}
 }

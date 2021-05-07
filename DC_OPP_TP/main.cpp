@@ -32,6 +32,13 @@ char** Q_M_process(boolList* firstList, int *EPI_length) { // 콰인-매클러�
 	for (int i = 0; i < newList; ++i){
 		nextList[i]->getUnconnect(&PIs);
 	}
+	
+	booltype* currPI = PIs.gethead();
+	while (currPI != NULL) {
+		cout << currPI->boolvalue << endl;
+		currPI = currPI->next;
+	}
+	cout << "========" << endl;
 
 	// minterm 요소 하나로 PIs 요소를 반복하여 연결되는 부분을 확인 
 	// (반복 - 모든요소 비교까지)
@@ -58,6 +65,8 @@ char** Q_M_process(boolList* firstList, int *EPI_length) { // 콰인-매클러�
 		}
 		EPIp = EPIp->next; ++j;
 	}
+
+	// 추후 PI를 만족하는 minimum set 구하는 단계를 추가예젱
 
 	// 반환 - 이차원 배열로 출력
 	*EPI_length = count;
