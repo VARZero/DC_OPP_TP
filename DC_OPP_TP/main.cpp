@@ -61,6 +61,7 @@ char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰�
 	// 추후 PI를 만족하는 minimum set 구하는 단계를 추가예젱
 	/* 곂치는_PI를_EPI와_함께_반환함; */
 
+
 	// 반환 - 이차원 배열로 출력
 	*EPI_length = count; // EPI의 갯수 반환
 	return EPIda;
@@ -75,11 +76,32 @@ void Optimize() {
 
 	// T11, T12
 
+	// 내부 외부요소 전부 드모르간으로 처리
 }
 
-void BoolEqu() {
-	// BOOL EQ로 나타내고 (내부적) -> 트랜지스터 갯수 파악
-	/* 문자열_인자로; */
+void BoolEqu(char** bools, int row) {
+	// 트랜지스터 갯수 파악
+	int trans_count = 0;
+	// NAND 부분 갯수
+	for (int i = 0; i < row; ++i)
+	{
+		int countbool = 0;
+		for(int j=0;j<bits;++j){
+			if (bools[i][j] != '-') countbool++;
+		}
+		trans_count += countbool * 2;
+	}
+	
+	//NOR 갯수
+	trans_count += row * 2;
+	
+	// 0갯수
+	for (int i = 0; i < row; ++i)
+	{
+		for (int j = 0; j < bits; ++j) {
+			if (bools[i][j] == '0') trans_count += 2;
+		}
+	}
 }
 
 int main() {
