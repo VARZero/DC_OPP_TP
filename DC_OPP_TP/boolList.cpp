@@ -7,16 +7,18 @@
 
 /* Lists 클래스 내 함수 */
 bool Lists::findBoolty(char* txt){ // 해당 bool Eq가 존재하는지 찾기
+	// 동일하면 1을 반환, 틀리면 0을 반환
     booltype *currBt = head;
     while(currBt != NULL){
         int samebits = 0;
         for (int i = 0; i < bits; ++i){
+			// 한글자씩 비교
             if (currBt->boolvalue[i] == txt[i]) {++samebits;}
         }
-        if (samebits == bits){return 1;}
+        if (samebits == bits){return 1;} // 내부의 비트가 총 비트와 동일하면 1을 반환
 		currBt = currBt->next;
     }
-    return 0;
+    return 0; // 내부 비트 모두 돌아봤을때 없다면 0을 반환
 }
 ImplicantList* Lists::newLists(){ // 후에 연결되는 리스트 추가
     ImplicantList* newImpli = new ImplicantList(index+1, this);
@@ -59,7 +61,8 @@ booltype* Lists::getOneStart(int idx){ // one을 idx로 하는 최초 booltype �
     }
     return NULL;
 }
-void Lists::getUnconnect(PIList* PI){ // unconnect되는 모든 요소와 갯수를 반환하는 함수
+void Lists::getUnconnect(PIList* PI){ // unconnect되는 모든 요소를 반환하는 함수
+	// PIList 포인터 형태로 반환
     booltype* currBt = head;
     while(currBt != NULL){
         if (currBt->connect == false){

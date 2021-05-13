@@ -1,6 +1,5 @@
 #include <fstream>
 #include "boolList.hpp"
-#include <string.h>
 
 using namespace std;
 
@@ -8,54 +7,47 @@ int bits; // 비트
 
 ofstream bool_output; // 출력 텍스트 파일
 
-char** Q_M_process(boolList* firstList, int *EPI_length) { // 콰인-매클러스키 알고리즘 처리
-
-	// 1의 개수 정렬 및 분리, 순서대로 정렬 (커스텀 링크드 리스트)
-	// 1의 개수로 분리된 부분끼리 비교 및 정렬. 
-	// 정렬된 요소들이 비교하고 있는 요소들에 연결이 되는지 확인하고
-	// 되지 않는 요소들은 따로 링크드 리스트에 저장
-	// (반복 - 연결되지 않는 요소만 존재할때 까지)
-	   // => Prime implicant 저장
+char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰인-매클러스키 알고리즘 처리
 	
-	int newList = 0;
+	// Prime Implicant를 구하기 위해 처리하는 클래스로 넘기기
+	int newList = 0; // 
 	ImplicantList** nextList = new ImplicantList* [bits];
 	nextList[0] = firstList->newLists();
 	
+	// 더이상 모든 bool들이 연결되지 않는 경우가 될때까지 반복
 	while(nextList[newList] != NULL){
 		nextList[newList+1] = nextList[newList]->newLists();
 		++newList;
 	}
-
-	PIList PIs;
 	
-	firstList->getUnconnect(&PIs);
+	// 연결되지 않는 bool들을 PIs에 저장
+	firstList->getUnconnect(PIs);
 	for (int i = 0; i < newList; ++i){
-		nextList[i]->getUnconnect(&PIs);
+		nextList[i]->getUnconnect(PIs);
 	}
 	
-	booltype* currPI = PIs.gethead();
+	// Prime implicant 출력
+	booltype* currPI = PIs->gethead();
 	while (currPI != NULL) {
 		cout << currPI->boolvalue << endl;
 		currPI = currPI->next;
 	}
 	cout << "========" << endl;
-
-	// minterm 요소 하나로 PIs 요소를 반복하여 연결되는 부분을 확인 
-	// (반복 - 모든요소 비교까지)
-	   // => Essential Prime implicant 저장
 	
+	// Essantial prime implicant 구하기
 	int count = 0;
 	PIList EPI;
-	PIs.getEPI(&EPI, firstList, &count);
+	PIs->getEPI(&EPI, firstList, &count);
 
+	// 링크드 리스트로 정리된 EPI를 이차원 배열로 변경
 	booltype* EPIp = EPI.gethead();
-
+		// 이차원 배열 동적할당
 	char **EPIda;
 	EPIda = new char*[count];
 	for (int i = 0; i < count; ++i) {
 		EPIda[i] = new char[bits];
 	}
-
+		// 이차원 배열 복사
 	int j = 0;
 	while (EPIp != NULL) {
 		cout << EPIp->boolvalue << endl;
@@ -67,9 +59,11 @@ char** Q_M_process(boolList* firstList, int *EPI_length) { // 콰인-매클러�
 	}
 
 	// 추후 PI를 만족하는 minimum set 구하는 단계를 추가예젱
+	// 곂치는 PI를 EPI와 함께 반환함
+
 
 	// 반환 - 이차원 배열로 출력
-	*EPI_length = count;
+	*EPI_length = count; // EPI의 갯수 반환
 	return EPIda;
 }
 
@@ -84,6 +78,7 @@ void BoolEqu() {
 }
 
 int main() {
+	// 파일 입출력 지정 및, 읽는 파일에서 한 줄 가져오는 변수 전언
 	char fileline[256];
 	ifstream bool_input;
 	bool_input.open("input_minterm.txt");
@@ -99,8 +94,8 @@ int main() {
 	bool_input.getline(fileline, 256);
 	bits = atoi(fileline);
 
+	// 비트 처리용 클래스 선언 및 파일에서 가져오기
 	boolList boolNew;
-	
 	while(!bool_input.eof()){
 		bool_input.getline(fileline, bits+3);
 		boolNew.insertBoolEq(fileline);
@@ -108,14 +103,16 @@ int main() {
 	
 	// 콰인-매클러스키 알고리즘 처리 함수로 넘기기
 	int length = 0; // EPI갯수
-	char** EsPrIm = Q_M_process(&boolNew, &length);
+	PIList allPIs; // PI를 반환하는 링크드 리스트
+	char** EsPrIm = Q_M_process(&boolNew, &length, &allPIs);
 
+	// 파일 입출력 스트림 종료
 	bool_input.close();
 	bool_output.close();
 
 	// 동적할당 해제
 	for (int i = 0; i < length; ++i) {
-		delete[] EsPrIm[i];
+		delete[] EsPrIm[i]; // Essantial Prime 할당 제거
 	}
 	delete EsPrIm;
 

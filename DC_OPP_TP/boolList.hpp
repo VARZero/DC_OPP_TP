@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-extern int bits;
+extern int bits; // 비트를 지정해주는 변수는 main.cpp에서 지정됩니다.
 
 class booltype {
 	// Bool Eq 저장용
