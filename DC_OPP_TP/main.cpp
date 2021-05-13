@@ -59,8 +59,7 @@ char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰�
 	}
 
 	// 추후 PI를 만족하는 minimum set 구하는 단계를 추가예젱
-	// 곂치는 PI를 EPI와 함께 반환함
-
+	/* 곂치는_PI를_EPI와_함께_반환함; */
 
 	// 반환 - 이차원 배열로 출력
 	*EPI_length = count; // EPI의 갯수 반환
@@ -70,11 +69,17 @@ char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰�
 void Optimize() {
 	// 최적화
 	
+	// 결합법칙
+
 	// TWO-LEVEL LOGIC CIRCUIT
+
+	// T11, T12
+
 }
 
 void BoolEqu() {
 	// BOOL EQ로 나타내고 (내부적) -> 트랜지스터 갯수 파악
+	/* 문자열_인자로; */
 }
 
 int main() {
