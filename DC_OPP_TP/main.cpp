@@ -79,7 +79,7 @@ void Optimize() {
 	// 내부 외부요소 전부 드모르간으로 처리
 }
 
-void BoolEqu(char** bools, int row) {
+int tran_conut(char** bools, int row) {
 	// 트랜지스터 갯수 파악
 	int trans_count = 0;
 	// NAND 부분 갯수
@@ -93,7 +93,8 @@ void BoolEqu(char** bools, int row) {
 	}
 	
 	//NOR 갯수
-	trans_count += row * 2;
+	if (row != 1)
+		trans_count += row * 2;
 	
 	// 0갯수
 	for (int i = 0; i < row; ++i)
@@ -102,6 +103,8 @@ void BoolEqu(char** bools, int row) {
 			if (bools[i][j] == '0') trans_count += 2;
 		}
 	}
+
+	return trans_count;
 }
 
 int main() {
@@ -132,6 +135,10 @@ int main() {
 	int length = 0; // EPI갯수
 	PIList allPIs; // PI를 반환하는 링크드 리스트
 	char** EsPrIm = Q_M_process(&boolNew, &length, &allPIs);
+
+	// 트랜지스터 갯수 확인
+	int trans = tran_conut(EsPrIm, length);
+	bool_output << "\nCost (# of transistors): " << trans;
 
 	// 파일 입출력 스트림 종료
 	bool_input.close();

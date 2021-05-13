@@ -1,1 +1,3 @@
 00-
+
+Cost (# of transistors): 8
