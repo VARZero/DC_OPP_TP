@@ -1,57 +1,147 @@
 #include <fstream>
-#include <iostream>
+#include "boolList.hpp"
+
 using namespace std;
 
-class booltype {
-	// ¸µÅ©µå ¸®½ºÆ®
-public: 
-	bool md; // minterm, don't care ±¸ºĞ
-	char* boolvalue; // °ª ex) 0000, 0010
-	int one; // 1 °¹¼ö
-	int sort_one; // °¹¼ö¿¡ µû¸¥ ¼ø¼­
-	bool start; // 1ÀÇ °¹¼ö·Î ±¸ºĞµÈ ½ÃÀÛÀÎÁö È®ÀÎ
-	bool end; // 1ÀÇ °¹¼ö·Î ±¸ºĞµÈ ³¡ÀÎÁö È®ÀÎ
-	booltype* next; // ´ÙÀ½¿ä¼Ò
-	booltype();
+int bits; // ë¹„íŠ¸
+
+ofstream bool_output; // ì¶œë ¥ í…ìŠ¤íŠ¸ íŒŒì¼
+
+char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // ì½°ì¸-ë§¤í´ëŸ¬ìŠ¤í‚¤ ì•Œê³ ë¦¬ì¦˜ ì²˜ë¦¬
 	
-	~booltype();
-};
+	// Prime Implicantë¥¼ êµ¬í•˜ê¸° ìœ„í•´ ì²˜ë¦¬í•˜ëŠ” í´ë˜ìŠ¤ë¡œ ë„˜ê¸°ê¸°
+	int newList = 0; // 
+	ImplicantList** nextList = new ImplicantList* [bits];
+	nextList[0] = firstList->newLists();
+	
+	// ë”ì´ìƒ ëª¨ë“  boolë“¤ì´ ì—°ê²°ë˜ì§€ ì•ŠëŠ” ê²½ìš°ê°€ ë ë•Œê¹Œì§€ ë°˜ë³µ
+	while(nextList[newList] != NULL){
+		nextList[newList+1] = nextList[newList]->newLists();
+		++newList;
+	}
+	
+	// ì—°ê²°ë˜ì§€ ì•ŠëŠ” boolë“¤ì„ PIsì— ì €ì¥
+	firstList->getUnconnect(PIs);
+	for (int i = 0; i < newList; ++i){
+		nextList[i]->getUnconnect(PIs);
+	}
+	
+	// Prime implicant ì¶œë ¥
+	booltype* currPI = PIs->gethead();
+	while (currPI != NULL) {
+		cout << currPI->boolvalue << endl;
+		currPI = currPI->next;
+	}
+	cout << "========" << endl;
+	
+	// Essantial prime implicant êµ¬í•˜ê¸°
+	int count = 0;
+	PIList EPI;
+	PIs->getEPI(&EPI, firstList, &count);
 
-void Q_M_process() {
-	// ÄâÀÎ-¸ÅÅ¬·¯½ºÅ° ¾Ë°í¸®Áò Ã³¸®
+	// ë§í¬ë“œ ë¦¬ìŠ¤íŠ¸ë¡œ ì •ë¦¬ëœ EPIë¥¼ ì´ì°¨ì› ë°°ì—´ë¡œ ë³€ê²½
+	booltype* EPIp = EPI.gethead();
+		// ì´ì°¨ì› ë°°ì—´ ë™ì í• ë‹¹
+	char **EPIda;
+	EPIda = new char*[count];
+	for (int i = 0; i < count; ++i) {
+		EPIda[i] = new char[bits];
+	}
+		// ì´ì°¨ì› ë°°ì—´ ë³µì‚¬
+	int j = 0;
+	while (EPIp != NULL) {
+		cout << EPIp->boolvalue << endl;
+		bool_output << EPIp->boolvalue << endl;
+		for (int k = 0; k < bits; ++k){
+			EPIda[j][k] = EPIp->boolvalue[k];
+		}
+		EPIp = EPIp->next; ++j;
+	}
 
-	// 1ÀÇ °³¼ö Á¤·Ä ¹× ºĞ¸®, ¼ø¼­´ë·Î Á¤·Ä (Ä¿½ºÅÒ ¸µÅ©µå ¸®½ºÆ®)
-	// 1ÀÇ °³¼ö·Î ºĞ¸®µÈ ºÎºĞ³¢¸® ºñ±³ ¹× Á¤·Ä. 
-	// Á¤·ÄµÈ ¿ä¼ÒµéÀÌ ºñ±³ÇÏ°í ÀÖ´Â ¿ä¼Òµé¿¡ ¿¬°áÀÌ µÇ´ÂÁö È®ÀÎÇÏ°í
-	// µÇÁö ¾Ê´Â ¿ä¼ÒµéÀº µû·Î ¸µÅ©µå ¸®½ºÆ®¿¡ ÀúÀå
-	// (¹İº¹ - ¿¬°áµÇÁö ¾Ê´Â ¿ä¼Ò¸¸ Á¸ÀçÇÒ¶§ ±îÁö)
-	   // => Prime implicant ÀúÀå
+	// ì¶”í›„ PIë¥¼ ë§Œì¡±í•˜ëŠ” minimum set êµ¬í•˜ëŠ” ë‹¨ê³„ë¥¼ ì¶”ê°€ì˜ˆì ±
+	/* ê³‚ì¹˜ëŠ”_PIë¥¼_EPIì™€_í•¨ê»˜_ë°˜í™˜í•¨; */
 
-	// minterm ¿ä¼Ò ÇÏ³ª·Î PIs ¿ä¼Ò¸¦ ¹İº¹ÇÏ¿© ¿¬°áµÇ´Â ºÎºĞÀ» È®ÀÎ 
-	// (¹İº¹ - ¸ğµç¿ä¼Ò ºñ±³±îÁö)
-	   // => Essential Prime implicant ÀúÀå
 
-	// ¹İÈ¯ - Essential Prime implicant (char*)
+	// ë°˜í™˜ - ì´ì°¨ì› ë°°ì—´ë¡œ ì¶œë ¥
+	*EPI_length = count; // EPIì˜ ê°¯ìˆ˜ ë°˜í™˜
+	return EPIda;
 }
 
 void Optimize() {
-	// ÃÖÀûÈ­
+	// ìµœì í™”
+	
+	// ê²°í•©ë²•ì¹™
 
 	// TWO-LEVEL LOGIC CIRCUIT
+
+	// T11, T12
+
+	// ë‚´ë¶€ ì™¸ë¶€ìš”ì†Œ ì „ë¶€ ë“œëª¨ë¥´ê°„ìœ¼ë¡œ ì²˜ë¦¬
 }
 
-void BoolEqu() {
-	// BOOL EQ·Î ³ªÅ¸³»°í (³»ºÎÀû) -> Æ®·£Áö½ºÅÍ °¹¼ö ÆÄ¾Ç
+void BoolEqu(char** bools, int row) {
+	// íŠ¸ëœì§€ìŠ¤í„° ê°¯ìˆ˜ íŒŒì•…
+	int trans_count = 0;
+	// NAND ë¶€ë¶„ ê°¯ìˆ˜
+	for (int i = 0; i < row; ++i)
+	{
+		int countbool = 0;
+		for(int j=0;j<bits;++j){
+			if (bools[i][j] != '-') countbool++;
+		}
+		trans_count += countbool * 2;
+	}
+	
+	//NOR ê°¯ìˆ˜
+	trans_count += row * 2;
+	
+	// 0ê°¯ìˆ˜
+	for (int i = 0; i < row; ++i)
+	{
+		for (int j = 0; j < bits; ++j) {
+			if (bools[i][j] == '0') trans_count += 2;
+		}
+	}
 }
 
 int main() {
+	// íŒŒì¼ ì…ì¶œë ¥ ì§€ì • ë°, ì½ëŠ” íŒŒì¼ì—ì„œ í•œ ì¤„ ê°€ì ¸ì˜¤ëŠ” ë³€ìˆ˜ ì „ì–¸
+	char fileline[256];
 	ifstream bool_input;
 	bool_input.open("input_minterm.txt");
-	/* ÆÄÀÏ ÀÔ·Â Ã³¸® */
-	// ºñÆ® ÀÔ·Â
-	// don't care / minterm ±¸ºĞ
+	bool_output.open("result.txt");
 
-	// ÄâÀÎ-¸ÅÅ¬·¯½ºÅ° ¾Ë°í¸®Áò Ã³¸® ÇÔ¼ö·Î ³Ñ±â±â
+	/* íŒŒì¼ ì…ë ¥ ì²˜ë¦¬ */
+	if (!bool_input.is_open()){
+		cout << "File Open Error!" << endl;
+		return 0;
+	}
+
+	// ë¹„íŠ¸ ì…ë ¥
+	bool_input.getline(fileline, 256);
+	bits = atoi(fileline);
+
+	// ë¹„íŠ¸ ì²˜ë¦¬ìš© í´ë˜ìŠ¤ ì„ ì–¸ ë° íŒŒì¼ì—ì„œ ê°€ì ¸ì˜¤ê¸°
+	boolList boolNew;
+	while(!bool_input.eof()){
+		bool_input.getline(fileline, bits+3);
+		boolNew.insertBoolEq(fileline);
+	}
 	
+	// ì½°ì¸-ë§¤í´ëŸ¬ìŠ¤í‚¤ ì•Œê³ ë¦¬ì¦˜ ì²˜ë¦¬ í•¨ìˆ˜ë¡œ ë„˜ê¸°ê¸°
+	int length = 0; // EPIê°¯ìˆ˜
+	PIList allPIs; // PIë¥¼ ë°˜í™˜í•˜ëŠ” ë§í¬ë“œ ë¦¬ìŠ¤íŠ¸
+	char** EsPrIm = Q_M_process(&boolNew, &length, &allPIs);
+
+	// íŒŒì¼ ì…ì¶œë ¥ ìŠ¤íŠ¸ë¦¼ ì¢…ë£Œ
+	bool_input.close();
+	bool_output.close();
+
+	// ë™ì í• ë‹¹ í•´ì œ
+	for (int i = 0; i < length; ++i) {
+		delete[] EsPrIm[i]; // Essantial Prime í• ë‹¹ ì œê±°
+	}
+	delete EsPrIm;
+
 	return 0;
 }
