@@ -40,6 +40,7 @@ char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰�
 	PIs->getEPI(&EPI, firstList, &count);
 
 	// 링크드 리스트로 정리된 EPI를 이차원 배열로 변경
+	// 이차원 배열 각행의 마지막은 &, | 구분
 	booltype* EPIp = EPI.gethead();
 		// 이차원 배열 동적할당
 	char **EPIda;
@@ -59,48 +60,74 @@ char** Q_M_process(boolList* firstList, int *EPI_length, PIList* PIs) { // 콰�
 	}
 
 	// 추후 PI를 만족하는 minimum set 구하는 단계를 추가예젱
-	/* 곂치는_PI를_EPI와_함께_반환함; */
-
+	/* 겹치는_PI를_EPI와_함께_반환함; */
+	
 
 	// 반환 - 이차원 배열로 출력
 	*EPI_length = count; // EPI의 갯수 반환
 	return EPIda;
 }
 
-void Optimize() {
-	// 최적화
-	
-	// 결합법칙
+int Optimize(char** bools, int row) {
+	// 최적화, 트랜지스터 갯수 확인
+	int trans_count = 0; // 트랜지스터 갯수 저장
+
+	/* 결합법칙 (존폐 결정 중..)
+	char* checkOneRow = new char [row]; int indexOR = 0; // 1부터 시작해서 확인
+	for (int i = 0; i < bits; ++i){ // 한 열에서 결합 가능한 요소를 찾음
+		int oneEx = -1, zeroEx = -1;
+		for (int j = 0; j < row; ++j){
+			if (bools[j][i] == '-') {continue;} // - 무시
+			else if (bools[j][i] == '0') {
+				if (zeroEx != -1) {
+					bools[j][i] = '~';
+				} // 이후 0을 찾았을때
+				else {zeroEx = j;} // 처음 0을 찾을때
+			}
+			else if (bools[j][i] == '1') {
+				if (oneEx != -1) {bools[j][i] = '/';} // 이후 1을 찾았을 때
+				else {oneEx = j;} // 처음 1을 찾을때
+			}
+		}
+		if (zeroEx != -1) {
+			bools[zeroEx][i] = '/';
+			inputNotG++; // not 게이트 추가
+		}
+		if (oneEx != -1) {bools[oneEx][i] = '/';}
+	}*/
 
 	// TWO-LEVEL LOGIC CIRCUIT
 
-	// T11, T12
-
+	// T11
+	
+	// T12
+	// 최상위 (output에서 가장 가까운) 게이트의 처리
 	// 내부 외부요소 전부 드모르간으로 처리
-}
-
-int tran_conut(char** bools, int row) {
 	// 트랜지스터 갯수 파악
-	int trans_count = 0;
-	// NAND 부분 갯수
-	for (int i = 0; i < row; ++i)
-	{
-		int countbool = 0;
-		for(int j=0;j<bits;++j){
-			if (bools[i][j] != '-') countbool++;
+	
+	// 최상위 (Output에서 가장 가까운, NAND) 게이트 부분 갯수
+	trans_count += row * 2;
+	cout << trans_count << endl;
+
+
+	// 중앙 게이트의 트랜지스터 갯수 및 input에 Not게이트가 존재시 트랜지스터 추가
+	for (int i = 0; i < row; ++i){
+		int NotG_i = 0, inputs = 0;
+		for (int j = 0; j < bits; ++j){
+			if (bools[i][j] == '0'){NotG_i++;}
+			if (bools[i][j] != '-'){inputs++;}
 		}
-		trans_count += countbool * 2;
-	}
-	
-	//NOR 갯수
-	if (row != 1)
-		trans_count += row * 2;
-	
-	// 0갯수
-	for (int i = 0; i < row; ++i)
-	{
-		for (int j = 0; j < bits; ++j) {
-			if (bools[i][j] == '0') trans_count += 2;
+		if ((NotG_i/2) > (inputs/2)){
+			// not 게이트가 input 갯수의 절반보다 많을때는 OR로 처리
+			trans_count += inputs*2 + 2;
+			// input은 반전됨 (0->1 / 1->0)
+			trans_count += (inputs - NotG_i) * 2;
+		}
+		else{
+			// not 게이트가 input 갯수의 절반보다 적을때는 NAND로 처리
+			trans_count += inputs*2;
+			// input은 그대로
+			trans_count += NotG_i * 2;
 		}
 	}
 
@@ -136,8 +163,8 @@ int main() {
 	PIList allPIs; // PI를 반환하는 링크드 리스트
 	char** EsPrIm = Q_M_process(&boolNew, &length, &allPIs);
 
-	// 트랜지스터 갯수 확인
-	int trans = tran_conut(EsPrIm, length);
+	// 최적화 및 트랜지스터 갯수 확인
+	int trans = Optimize(EsPrIm, length);
 	bool_output << "\nCost (# of transistors): " << trans;
 
 	// 파일 입출력 스트림 종료

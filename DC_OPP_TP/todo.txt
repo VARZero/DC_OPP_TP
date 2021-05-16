@@ -1,0 +1,2 @@
+Prime implicant minimum 구하기
+최적화

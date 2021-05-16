@@ -16,7 +16,7 @@ class booltype {
 		bool connect;
 		booltype* next; // 다음요소
 		booltype(char* txt) {
-			// 기본 값 초기회
+			// 기본 값 초기화
 			one = 0; connect = false; next = NULL;
 			// bool 값 저장을 위해 동적할당
 			boolvalue = new char[bits+1];
